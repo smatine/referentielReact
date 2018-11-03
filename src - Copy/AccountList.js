@@ -14,7 +14,7 @@ class AccountList extends Component {
   componentDidMount() {
     this.setState({isLoading: true});
 
-    fetch(`/accounts`)
+    fetch(`/products/${this.props.match.params.id}/accounts`)
       .then(response => response.json())
       .then(data => this.setState({accounts: data, isLoading: false}));
   }
@@ -42,8 +42,8 @@ class AccountList extends Component {
 
     const accountList = accounts.map(account => {
 
-      const link = "/products/" + account.product.id;  
-      
+      const link = "/trigramme/" + account.product.trigramme.id + "/products/" + account.product.id;  
+
           
       return <tr key={account.id}>
         <td style={{whiteSpace: 'nowrap'}}>{account.id}</td>
@@ -51,34 +51,36 @@ class AccountList extends Component {
         <td>{account.numAccount}</td>
 		    <td>{account.env}</td>
 
-        
-
+        <td>{account.region}</td>
         <td>{account.mailList}</td>
         <td>{account.alias}</td>
 
 		    <td><a href={link}>{account.product.name}</a></td>
 		    <td>{account.text}</td>
 
-        
+        <td>
+          <ButtonGroup>
+            <Button size="sm" color="secondary" tag={Link} to={"/account/" + account.id + "/vpcs"}>Vpcs</Button>&nbsp;&nbsp;
+          </ButtonGroup>
+        </td>
 		
         <td>
           <ButtonGroup>
-            <Button size="sm" color="primary" tag={Link} to={"/accounts/" + account.id}>Edit</Button>
+            <Button size="sm" color="primary" tag={Link} to={/*"/trigramme/" + account.product.trigramme.id +*/ "/product/" + account.product.id +"/accounts/" + account.id}>Edit</Button>
             <Button size="sm" color="danger" onClick={() => this.remove(account.product.id, account.id)}>Delete</Button>
           </ButtonGroup>
         </td>
       </tr>
     });
 
-    const add = `/accounts/new`;
-    //const prd = `/products/`;
+    const add = `/product/${this.props.match.params.id}/accounts/new`;
+    const prd = `/trigramme/${this.props.match.params.idt}/products/`;
 
     return (
       <div>
         <AppNavbar/>
         <Container fluid>
           <div className="float-right">
-            
             <Button color="success" tag={Link} to={add}>Add Account</Button>
           </div>
           <h3>Account</h3>
@@ -89,12 +91,12 @@ class AccountList extends Component {
               <th width="5%">NumAccount</th>
               <th width="5%">Env</th> 
 
-              
+              <th width="5%">Region</th> 
               <th width="5%">Mail</th> 
               <th width="5%">Alias</th>
               <th width="5%">Product</th>
 			        <th width="5%">Description</th>
-              
+              <th width="5%">Components</th>
 			        <th width="5%">Actions</th>
             </tr>
             </thead>

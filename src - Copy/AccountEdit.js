@@ -9,15 +9,16 @@ class AccountEdit extends Component {
     numAccount: '',
     text: '',
 	  env: '',
+    region: '',
     mailList: '',
     alias: '',
-    products: {},
-	  product: {},
+	  product: '',
 	  productId : '',
     touched: {
       vpc:false,
       numAccount: false,
       env: false,
+      region: false,
       mailList: false,
       alias: false,
       productId: false
@@ -41,21 +42,24 @@ class AccountEdit extends Component {
         vpc: false,
         numAccount: false,
         env: false,
+        region: false,
         mailList: false,
         alias: false,
         productId: false
       };
       this.setState({item: account});
 
-      let item = {...this.state.item};
-      item.productId = account.product.id;
-      this.setState({item: item});
 
-      let vpcs;                              
+
+     let vpcs;
+                              
       await fetch(`/accounts/${this.props.match.params.id}/vpcs`)
       .then((result) => {
+        // Get the result
+        // If we want text, call result.text()
         return result.json();
       }).then((jsonResult) => {
+        // Do something with the result
         vpcs = jsonResult.length;
         console.log(jsonResult.length);
       })
@@ -63,48 +67,44 @@ class AccountEdit extends Component {
         let item = {...this.state.item};
         item.touched.vpc = true;
       }
+      
+
 
     }
     else {
+      
+      const product = await (await fetch(`/products/${this.props.match.params.idp}`)).json();
       const account = {
         numAccount: '',
         text: '',
         env: '',
+        region: '',
         mailList: '',
         alias: '',
-        products: {},
-        product: {},
+        product: '',
         productId : '',
         touched: {
           vpc: false,
           numAccount: false,
           env: false,
+          region: false,
           mailList: false,
           alias: false,
           productId: false
         }
       };
+      account.product = product;
       account.touched = {
         vpc: false,
         numAccount: false,
         env: false,
+        region: false,
         mailList: false,
         alias: false,
         productId: false
       };
       this.setState({item: account});
     }
-
-    //const {item} = this.state;
-    await fetch('/products',)
-    .then((result) => {
-      return result.json();
-    }).then((jsonResult) => {
-      let item = {...this.state.item};
-      item.products = jsonResult;
-      this.setState({item: item});
-    })
-
   }
 
   handleChange(event) {
@@ -123,20 +123,18 @@ class AccountEdit extends Component {
     item.touched = {
         numAccount: true,
         env: true,
+        region: true,
         mailList: true,
         alias: true,
         productId: true
     };
-    const errors = this.validate(item.numAccount, item.env, item.mailList, item.productId, item.alias);
+    const errors = this.validate(item.numAccount, item.env, item.region, item.mailList, item.productId, item.alias);
     const isDisabled = Object.keys(errors).some(x => errors[x]);
-    if(isDisabled) {
-        this.forceUpdate();
-        return;
-    }
+    if(isDisabled) return;
     
-    const hist= '/accounts'; 
+    const hist= '/product/' + item.product.id + '/accounts'; 
 
-    item.product={id: item.productId};
+    
 
     await fetch((item.id) ? '/products/' + (item.product.id) + '/accounts/'+(item.id) : '/products/' + item.product.id + '/accounts', {
       method: (item.id) ? 'PUT' : 'POST',
@@ -158,11 +156,12 @@ class AccountEdit extends Component {
   }
   
 
-  validate(numAccount, env, mailList, productId, alias) {
+  validate(numAccount, env, region, mailList, productId, alias) {
 
     const errors = {
       numAccount: '',
       env: '',
+      region: '',
       mailList: '',
       alias: '',
       productId: ''
@@ -172,19 +171,18 @@ class AccountEdit extends Component {
       errors.numAccount = 'Account should not be null';
       return errors;
     }
-    else if(this.state.item.touched.productId && productId.length <= 0){
-      errors.productId = 'Product should not be null';
-      return errors;
-    }
     else if(this.state.item.touched.env && env.length !== 3){
       errors.env = 'Env should be = 3 characters!';
       return errors;
     }
-    else if(this.state.item.touched.alias && alias.length <= 0){
-      errors.alias = 'alias should not be null';
+    else if(this.state.item.touched.region && region.length <= 0){
+      errors.region = 'owner should not be null';
       return errors;
     }
-
+    else if(this.state.item.touched.alias && alias.length <= 0){
+      errors.alias = 'owner should not be null';
+      return errors;
+    }
     const emailRex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     
     if(this.state.item.touched.mailList && !emailRex.test(mailList)){
@@ -199,37 +197,22 @@ class AccountEdit extends Component {
     const {item} = this.state;
     const title = <h2>{item.id ? 'Edit Account' : 'Add Account'}</h2>;
     
-    const errors = this.validate(item.numAccount, item.env, item.mailList, item.productId, item.alias);
+    const errors = this.validate(item.numAccount, item.env, item.region, item.mailList, item.productId, item.alias);
     const isDisabled = Object.keys(errors).some(x => errors[x]);
     
-    const canc = "/accounts";
+    const canc = "/product/" + item.product.id + "/accounts";
 
-    /*let trig = null;
+    let trig = null;
     trig = <FormGroup>
             <Label for="tri">Product: {item.product.name}</Label>
             <Input type="text" name="productId" id="productId" value={item.product.id || ''} disabled="true"/>
-          </FormGroup>;*/
+          </FormGroup>;
     
 
-    /*let vpcs = null;
-    if(item.id) vpcs = <Button size="sm" color="secondary" tag={Link} to={"/account/" + item.id + "/vpcs"}>Vpcs</Button>;*/
+    let vpcs = null;
+    if(item.id) vpcs = <Button size="sm" color="secondary" tag={Link} to={"/account/" + item.id + "/vpcs"}>Vpcs</Button>;
 
     const isDisabledd = item.touched.vpc;
-
-    
-    let opts = [];
-    if(item.products && item.products.length){
-          item.products.map(s => {  
-          opts.push(<option value={s.id}>{s.id} {s.name}</option>);
-      });
-    }
-    if(item.id) {
-          //opts.push(<option value={item.product.id} >{item.product.id} {item.product.name} </option>);
-    }
-
-    let prd = item.productId || '';
-    item.productId = prd;
-
 
     return <div>
       <AppNavbar/>
@@ -238,7 +221,7 @@ class AccountEdit extends Component {
         <Form onSubmit={this.handleSubmit}>
           <FormGroup>
             <Label for="numAccount">Account (*)</Label>
-            <Input type="text" name="numAccount" id="numAccount" value={item.numAccount || ''} placeholder="Enter account"  maxLength="12"
+            <Input type="text" name="numAccount" id="numAccount" value={item.numAccount || ''} placeholder="Enter account" autofocus="true"
                    onChange={this.handleChange} onBlur={this.handleBlur('numAccount')} autoComplete="numAccount"
                    valid={errors.numAccount === ''}
                    invalid={errors.numAccount !== ''}
@@ -246,18 +229,6 @@ class AccountEdit extends Component {
             <FormFeedback>{errors.numAccount}</FormFeedback>
           </FormGroup>
           
-          <FormGroup>
-            <Label for="productId">Product (*)</Label>
-            <Input type="select" name="productId" id="productId"  value={prd} onChange={this.handleChange} onBlur={this.handleBlur('productId')}
-                 valid={errors.productId === ''}
-                 invalid={errors.productId !== ''}
-            >
-              <option value="" disabled>Choose</option>
-              {opts}
-            </Input>
-            <FormFeedback>{errors.productId}</FormFeedback>
-          </FormGroup>
-
 
           <FormGroup>
             <Label for="env">Env (*)</Label>
@@ -274,6 +245,23 @@ class AccountEdit extends Component {
             </Input>
             <FormFeedback>{errors.env}</FormFeedback>
           </FormGroup>
+
+          <FormGroup>
+            <Label for="region">Region (*)</Label>
+            <Input type="select" name="region" id="region" value={item.region || ''} onChange={this.handleChange} onBlur={this.handleBlur('region')}
+                   valid={errors.region === ''}
+                   invalid={errors.region !== ''}
+
+            >
+              <option value="" disabled>Choose</option>
+              <option value="eu-west-1">EU (Ireland) Region</option>
+              <option value="eu-west-2">EU (London) Region</option>
+              <option value="eu-west-3">EU (Paris) Region</option>
+              <option value="eu-central-1 ">EU (Frankfurt) Region</option>
+            </Input>
+            <FormFeedback>{errors.region}</FormFeedback>
+          </FormGroup>
+
 
           <FormGroup>
             <Label for="mailList">Mail (*)</Label>
@@ -294,7 +282,8 @@ class AccountEdit extends Component {
                    />
             <FormFeedback>{errors.alias}</FormFeedback>
           </FormGroup>
-          
+
+          {trig}
 		     
 		      <FormGroup>
             <Label for="text">Description</Label>
@@ -305,6 +294,8 @@ class AccountEdit extends Component {
           <FormGroup>
             <Button color="primary" type="submit" disabled={isDisabled}>Save</Button>{' '}
             <Button color="secondary" tag={Link} to={canc}>Cancel</Button>
+
+            &nbsp;&nbsp;&nbsp;&nbsp;{vpcs}
           </FormGroup>
         </Form>
       </Container>

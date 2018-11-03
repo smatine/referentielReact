@@ -4,11 +4,16 @@
   "private": true,
   "dependencies": {
     "bootstrap": "4.1.2",
+    "cidr-regex": "^2.0.10",
     "react": "^16.5.2",
+    "react-bootstrap-table-next": "^1.3.0",
+    "react-bootstrap-table2-filter": "^1.0.1",
+    "react-bootstrap-table2-paginator": "^1.0.3",
     "react-cookie": "2.2.0",
     "react-dom": "^16.5.2",
     "react-router-dom": "4.3.1",
     "react-scripts": "2.0.4",
+    "react-select": "^2.1.1",
     "reactstrap": "6.3.0",
     "yarn": "^1.10.1"
   },

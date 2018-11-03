@@ -11,7 +11,6 @@ class TrigrammeEdit extends Component {
     owner: '',
     irtCode:'',
     description: '',
-    errors: {},
     touched: {
         name: false,
         mailList: false,
@@ -66,10 +65,8 @@ class TrigrammeEdit extends Component {
     };
     const errors = this.validate(item.name, item.mailList, item.owner, item.irtCode);
     const isDisabled = Object.keys(errors).some(x => errors[x]);
-    if(isDisabled) {
-        this.forceUpdate();
-        return;
-    }
+    if(isDisabled) return;
+
     await fetch((item.id) ? '/trigrammes/'+(item.id) : '/trigrammes', {
       method: (item.id) ? 'PUT' : 'POST',
       headers: {
@@ -78,8 +75,6 @@ class TrigrammeEdit extends Component {
       },
       body: JSON.stringify(item),
     });
-
-    
     this.props.history.push('/trigrammes');
   }
 
@@ -147,15 +142,15 @@ class TrigrammeEdit extends Component {
     const errors = this.validate(item.name, item.mailList, item.owner, item.irtCode);
     const isDisabled = Object.keys(errors).some(x => errors[x]);
 
-    /*let accs = null;
-    if(item.id) accs = <Button size="sm" color="secondary" tag={Link} to={"/trigramme/" + item.id + "/products"}>Products</Button>;*/
+    let accs = null;
+    if(item.id) accs = <Button size="sm" color="secondary" tag={Link} to={"/trigramme/" + item.id + "/products"}>Products</Button>;
 
     return <div>
       <AppNavbar/>
       <Container>
         {title}
         <Form onSubmit={this.handleSubmit}>
-          
+
           <FormGroup>
             <Label for="name">Name (*)</Label>
             <Input type="text" name="name" id="name" value={item.name || ''} placeholder="Enter text" maxLength="3"
@@ -214,7 +209,7 @@ class TrigrammeEdit extends Component {
             <Button color="primary" type="submit" disabled={isDisabled}>Save</Button>{' '}
             <Button color="secondary" tag={Link} to="/trigrammes">Cancel</Button>
 
-            
+            &nbsp;&nbsp;&nbsp;&nbsp;{accs}
           </FormGroup>
         </Form>
       </Container>

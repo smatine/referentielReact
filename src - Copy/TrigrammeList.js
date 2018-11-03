@@ -52,7 +52,12 @@ class TrigrammeList extends Component {
 		    <td>{trigramme.description}</td>
         
 
-        
+        <td>
+          <ButtonGroup>
+            <Button size="sm" color="secondary" tag={Link} to={"/trigramme/" + trigramme.id + "/products"}>Products</Button>&nbsp;&nbsp;
+          </ButtonGroup>          
+        </td>
+
         <td>
           
           <ButtonGroup>
@@ -82,7 +87,7 @@ class TrigrammeList extends Component {
               
               <th width="10%">Mailling List</th>
               <th width="10%">Description</th>
-              
+              <th width="10%">Components</th>
               <th width="10%">Actions</th>
             </tr>
             </thead>
